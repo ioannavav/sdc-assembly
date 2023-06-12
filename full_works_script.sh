@@ -40,6 +40,9 @@ else
     python3 insert_calls_with_push.py $base_name.s modified_$base_name.s $block_size $limit
 fi
 
+# Initialize zmm registers to zero before the execution
+python3 insert_initialization.py modified_$base_name.s modified_$base_name.s
+
 # Link the modified assembly code with the print_registers assembly code
 clang -g -o final_test modified_$base_name.s print_registers.s
 
@@ -107,7 +110,7 @@ else
         parser_file="core_$core.txt"
         if [[ ${#DEFAULT_INPUTS[@]} -ne 0 ]]; then
             taskset -c $core ./final_test ${DEFAULT_INPUTS[@]} | xxd > $parser_file
-            #### taskset -c $core ./final_test $core | xxd > $parser_file
+            ############## taskset -c $core ./final_test $core | xxd > $parser_file
         else
             taskset -c $core ./final_test | xxd > $parser_file
         fi
@@ -170,7 +173,7 @@ else
             i=$((i+1))
 
             if [[ ! " ${unused_register_names[*]} " == *" ${register_names[$((i%272))]} "* ]]; then
-                if [[ "$register_value2" =~ [^[:space:]] ]]; then 
+                if [[ "$register_value2" =~ [^[:space:]] ]]; then
                     if [[ ! ${register_names[$((i%272))]} == "useless_alignment" ]]; then
                        echo "${register_names[$((i%272))]}: $register_value2"
                     fi
@@ -186,4 +189,5 @@ else
         echo "*********************************"
     done
 fi
+
 

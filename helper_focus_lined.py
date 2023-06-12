@@ -14,11 +14,11 @@ def parse_file(registers):
     # registers = registers.split()
     
     for register in registers:
-        if register.startswith('{') and register.endswith('}'):  
+        if register.startswith('{') and register.endswith('}'):
             # Registers inside brackets are suspicious
             reg_list = register[1:-1].split(',')  # Remove the brackets and split by comma
             suspicious_registers.append(reg_list)
-        else:  
+        else:
             # Registers outside brackets are interesting
             interesting_registers.append(register)
     #print(interesting_registers)
@@ -150,9 +150,10 @@ def check_priorities(register_list, line_list, commands_list):
 
 if __name__ == '__main__':
     second_file_path = sys.argv[1]
-    file_path = sys.argv[2:]
-    print("                          <Y><M><D> <Time> --- <start address> -- <end address>")
-    print(f"output_file: {second_file_path}")
+    date_and_time = sys.argv[2]
+    file_path = sys.argv[3:]
+    print("             <directory_name>/                               <Y><M><D> <Time> --- <start address> -- <end address>")
+    print("output_file: clean_blocks##" + date_and_time + "/" + second_file_path)
 
     interesting_registers, suspicious_registers = parse_file(file_path)
     
@@ -240,3 +241,4 @@ if __name__ == '__main__':
             
     print("\n -------------------------------------end of block-----------------------------------------------------")
     print("------------------------------------------------------------------------------------------------------\n")
+

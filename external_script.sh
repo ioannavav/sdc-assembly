@@ -25,6 +25,8 @@ while (( "$#" )); do
   esac
 done
 
+date_and_time=$(date +"%FT%T")
+
 input_file=${TESTING_INPUTS[0]}
 base_name=$(basename $input_file .c)
 
@@ -36,12 +38,12 @@ python3 dictionary.py intermediate_2.txt > intermediate_3.txt
 # Find the limits of the blocks of interest. From now on, we only procede if Final_result.txt is not empty (we have found some interesting differences)
 if [ -s intermediate_3.txt ]; then
     python3 new_extract_block_limits.py intermediate_3.txt > intermediate_4.txt
-    
+
     python3 unique_blocks.py intermediate_4.txt > intermediate_4_unique.txt
 
     while read -r first_string second_string others
     do
-      output_file="block_$(date +"%FT%T")---$first_string--$second_string.txt"
+      output_file="block_$date_and_time---$first_string--$second_string.txt"
       if [[ ${#DEFAULT_INPUTS[@]} -ne 0 ]]; then
           echo "$first_string $second_string ${DEFAULT_INPUTS[@]}" | gdb -batch -x gdb_script.py > $output_file
       else
@@ -57,7 +59,7 @@ if [ -s intermediate_3.txt ]; then
       if [ -z "$matched_file" ]; then
         echo "No file matches the pattern: *---${first_string}--${second_string}.txt"
       else
-        python3 helper_focus_lined.py $matched_file $others
+        python3 helper_focus_lined.py $matched_file $date_and_time $others
       fi
     done < intermediate_4.txt
 
@@ -67,10 +69,10 @@ fi
 
 
 # put intermediate results in a different folder so that we don't get confused
-mkdir -p intermediate_results_of_$base_name
-mv core_*.txt intermediate_results_of_$base_name 2>/dev/null || true
-mv intermediate_*.txt intermediate_results_of_$base_name 2>/dev/null || true
-mkdir -p blocks_of_$base_name
-mv block_*.txt blocks_of_$base_name 2>/dev/null || true
-mkdir -p clean_blocks_of_$base_name
-mv clean_block_*.txt clean_blocks_of_$base_name 2>/dev/null || true
+mkdir -p intermediate_results_dir##$date_and_time
+mv core_*.txt intermediate_results_dir##$date_and_time/ 2>/dev/null || true
+mv intermediate_*.txt intermediate_results_dir##$date_and_time/ 2>/dev/null || true
+mkdir -p blocks##$date_and_time
+mv block_*.txt blocks##$date_and_time/ 2>/dev/null || true
+mkdir -p clean_blocks##$date_and_time
+mv clean_block_*.txt clean_blocks##$date_and_time/ 2>/dev/null || true

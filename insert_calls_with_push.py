@@ -38,18 +38,29 @@ new_lines = """\tpush %rax
 inserted_count = 0
 i = 0
 traversed_i = 0
+in_my_init = False
+all_lines = []
+
 while i < len(lines):
-    line = lines[i].lstrip()  # Remove leading white spaces and tabs
-    if not line.startswith(".") and not line.startswith("#"):
+    all_lines.append(lines[i])
+
+    stripped_line = lines[i].strip()
+    if stripped_line.startswith("my_init:"):  # Exclude all the my_init instructions: we don't want to print registers there!
+        in_my_init = True
+        
+    if stripped_line and not stripped_line.startswith(".") and not stripped_line.startswith("#") and not in_my_init:
         if (traversed_i + 1) % frequency == 0:
-            if limit is not None and inserted_count >= limit:
-                break
-            lines.insert(i+(inserted_count), new_lines)
-            inserted_count += 1
+            if (limit is not None and inserted_count < limit) or limit is None:
+                all_lines.append(new_lines)
+                inserted_count += 1
         traversed_i +=1
+
+    if stripped_line.startswith("retq") and in_my_init:
+        in_my_init = False
     i += 1
 
 # Write the modified lines to the output file
 with open(output_file, "w") as file:
-    file.writelines(lines)
+    file.writelines(all_lines)
+
 
